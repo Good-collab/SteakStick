@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>固定导航栏的横向滚动页面</title>
+		<link rel="stylesheet" type="text/css" href="css/new_file.css" />
+	</head>
+	<body>
+		<div class="navbar">
+			<div class="left">
+				<div class="logo">
+					<a href="#page0">Logo</a>
+				</div>
+			</div>
+			<div class="center">
+				<a href="#page1">用户管理</a>
+				<a href="#page2">审核</a>
+				<a href="#page3">管理员设定</a>
+				<a href="#page4">分类设定</a>
+			</div>
+			<div class="right">
+				<div class="user-info">
+					<img src="" alt="用户头像">
+					马嘉祺
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div id="page0" class="page page0">
+				首页
+			</div>
+			<div id="page1" class="page page1">
+				<div class="sub-container" id="user-management">
+					<div id="Test1" class="sub-page">
+						<div class="page1_yi">添加用户</div>
+					</div>
+					<div id="Test2" class="sub-page">
+						<div class="page1_er">编辑用户</div>
+					</div>
+					<div id="Test3" class="sub-page">
+						<div class="page1_san">用户</div>
+					</div>
+					<div id="Test4" class="sub-page">
+						<div class="page1_si">马嘉祺</div>
+					</div>
+				</div>
+			</div>
+			<div id="page2" class="page page2">
+				<div id="page2_yi" class="page2_yi">审核1</div>
+				<div id="page2_er" class="page2_er">审核2</div>
+				<div id="page2_san" class="page2_san">审核3</div>
+			</div>
+			<div id="page3" class="page page3">管理员设定</div>
+			<div id="page4" class="page page4">分类设定</div>
+		</div>
+		<script src="js/jquery.js"></script>
+		<script>
+			const $navbarLinks = $('.navbar a');
+
+			$navbarLinks.on('click', function(event) {
+				event.preventDefault();
+				const targetId = $(this).attr('href');
+				const $targetPage = $(targetId);
+				$targetPage[0].scrollIntoView({
+					behavior: 'smooth'
+				});
+			});
+			$(document).ready(function() {
+				let $subContainer = $('#user-management');
+				let scrollTimeout = null;
+				let scrollAmount = 0;
+				let scrollSpeed = 150; // 调整滚动速度
+
+				$subContainer.on('wheel', function(event) {
+					event.preventDefault();
+
+					if (scrollTimeout) {
+						clearTimeout(scrollTimeout);
+					}
+
+					scrollAmount += event.originalEvent.deltaY;
+
+					scrollTimeout = setTimeout(function() {
+						let direction = (scrollAmount > 0) ? 1 : -1;
+						let $currentPage = $subContainer.find('.sub-page').filter(function() {
+							return $(this).inViewport();
+						});
+						let $nextPage = (direction > 0) ? $currentPage.next('.sub-page') : $currentPage.prev('.sub-page');
+
+						if ($nextPage.length) {
+							$nextPage[0].scrollIntoView({
+								behavior: 'smooth'
+							});
+						}
+
+						scrollAmount = 0; // 重置滚动量
+					}, scrollSpeed);
+				});
+				$.fn.inViewport = function() {
+					let elementLeft = $(this).offset().left;
+					let elementRight = elementLeft + $(this).outerWidth();
+
+					let viewportLeft = $(window).scrollLeft();
+					let viewportRight = viewportLeft + $(window).width();
+
+					return elementRight > viewportLeft && elementLeft < viewportRight;
+				};
+			});
+		</script>
+	</body>
+</html>
